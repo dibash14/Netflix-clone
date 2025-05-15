@@ -3,11 +3,11 @@ FROM node:16 AS frontend-builder
 
 WORKDIR /app
 
-COPY . .
+COPY roseflix-frontend .
 
 RUN npm install --legacy-peer-deps 
 
 
-COPY  .env .env
+COPY  roseflix-frontend/.env .env
 
 CMD ["npm","start"]
