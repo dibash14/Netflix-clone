@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Git Pull') {
+            steps {
+                git branch: 'main', url: 'https://github.com/dibash14/Netflix-clone'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t dibash14/netflix-backend:v0 -f Docker/dockerfile.backend ."
+                sh "docker build -t dibash14/netflix-frontend:v0 -f Docker/dockerfile.frontend ."
+            }
+        }
+
+        stage('Docker Hub Login') {
+            steps {
+                script {
+                    echo 'Logging into Docker Hub...'
+                    withCredentials([usernamePassword(credentialsId: 'DOCKERHUB', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PASS')]) {
+                        sh """
+                        echo ${DOCKERHUB_PASS} | docker login -u ${DOCKERHUB_USR} --password-stdin
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                sh "docker push dibash14/netflix-backend:v0"
+                sh "docker push dibash14/netflix-frontend:v0"
+            }
+        }
+    }
+}
